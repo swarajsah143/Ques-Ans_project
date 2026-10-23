@@ -1,0 +1,33 @@
+{
+  "name": "stillwater-qa",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A responsive React Q&A app powered by a local Ollama model.",
+  "scripts": {
+    "dev": "concurrently -k \"vite --host 127.0.0.1\" \"tsx watch server/index.ts\"",
+    "build": "tsc -b && vite build && tsc -p tsconfig.server.json",
+    "start": "node dist-server/server/index.js",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "tsx --test server/temperature.test.ts && python3 -m unittest discover -s GenAI -p 'test_*.py'"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "concurrently": "^9.2.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2",
+    "vite": "^6.3.5"
+  }
+}
