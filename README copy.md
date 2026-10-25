@@ -7,6 +7,7 @@ Stillwater is a React + TypeScript question-and-answer app. Its Express API send
 - Node.js 20.12 or newer
 - Python 3
 - [Ollama](https://ollama.com/download), running locally with `gemma3:1b` installed
+- A Tavily API key for questions that need current information
 
 Install the model and Python package:
 
@@ -14,6 +15,12 @@ Install the model and Python package:
 ollama pull gemma3:1b
 python3 -m pip install -r GenAI/requirements.txt
 ```
+
+Set `TAVILY_API_KEY` in the environment before starting the app to enable
+current-information searches. The key is only used by the server and should not
+be committed to the repository. Questions that do not appear to need current
+information continue to use the local model without a web search. Search results
+are passed to the local model as context, and their links are shown with the answer.
 
 ## Development
 
@@ -34,7 +41,7 @@ npm run dev
 
 Open the Vite URL printed in the terminal (usually <http://127.0.0.1:5173>). Vite proxies `/api` requests to the Express server on port 3001.
 
-If the Python environment containing `ollama` is not on your default `python3`, set `PYTHON_EXECUTABLE` to its full interpreter path before starting the dev server.
+If the Python environment containing `ollama` is not on your default `python3`, set `PYTHON_EXECUTABLE` to its full interpreter path before starting the dev server. Export `TAVILY_API_KEY` in the same environment.
 
 ## Production build
 
@@ -43,7 +50,7 @@ npm run build
 npm start
 ```
 
-The Express server serves the built frontend and API from port 3001 by default. Set `PORT` or `HOST` to change its bind address. No Gemini or OpenAI API key is used.
+The Express server serves the built frontend and API from port 3001 by default. Set `PORT` or `HOST` to change its bind address. No Gemini or OpenAI API key is used; Tavily is used for web searches when a question asks for current information.
 
 Short factual questions remain concise. Explanation requests use more output space, and prompts with an explicit word count (for example, `Explain this in 10,000 words`) receive a matching generation budget, up to 10,000 requested words. Gemma 3 is configured with a larger context for those long answers; they can take a long time to finish.
 

@@ -7,12 +7,20 @@ const modelTimeoutMs = 20 * 60_000;
 
 interface ModelChunk {
   text?: unknown;
+  error?: unknown;
+  sources?: unknown;
+}
+
+interface WebSource {
+  title: string;
+  url: string;
 }
 
 interface StreamEvent {
-  type: "chunk" | "done" | "error";
+  type: "chunk" | "done" | "error" | "sources";
   text?: string;
   error?: string;
+  sources?: WebSource[];
 }
 
 function writeEvent(response: Response, event: StreamEvent): void {
@@ -88,6 +96,27 @@ export function streamModelAnswer(
 
     try {
       const part = JSON.parse(line) as ModelChunk;
+      if (typeof part.error === "string") {
+        finish({ type: "error", error: part.error });
+        return;
+      }
+      if (Array.isArray(part.sources)) {
+        if (
+          !part.sources.every(
+            (source): source is WebSource =>
+              typeof source === "object" &&
+              source !== null &&
+              "title" in source &&
+              typeof source.title === "string" &&
+              "url" in source &&
+              typeof source.url === "string",
+          )
+        ) {
+          throw new Error("Invalid model output.");
+        }
+        writeEvent(response, { type: "sources", sources: part.sources });
+        return;
+      }
       if (typeof part.text !== "string") throw new Error("Invalid model output.");
       if (part.text) {
         hasText = true;

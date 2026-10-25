@@ -366,6 +366,37 @@ h1 span {
   border-color: rgba(255, 142, 130, 0.3);
 }
 
+.sources-box {
+  margin-top: 12px;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: #c2d6df;
+  background: rgba(6, 23, 36, 0.57);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.sources-box h3 {
+  margin: 0 0 8px;
+  color: #d6e9ee;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sources-box ol {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.sources-box a {
+  color: var(--aqua);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .footer-note {
   max-width: 610px;
   margin: 16px auto 0;

@@ -3,8 +3,14 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 type StreamEvent =
   | { type: "meta"; temperature: number }
   | { type: "chunk"; text: string }
+  | { type: "sources"; sources: WebSource[] }
   | { type: "done" }
   | { type: "error"; error: string };
+
+interface WebSource {
+  title: string;
+  url: string;
+}
 
 type Phase = "idle" | "thinking" | "dousing";
 
@@ -90,6 +96,7 @@ async function readError(response: Response): Promise<string> {
 export default function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+  const [sources, setSources] = useState<WebSource[]>([]);
   const [temperature, setTemperature] = useState<number | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -126,6 +133,7 @@ export default function App() {
     setIsSubmitting(true);
     setPhase("thinking");
     setHasError(false);
+    setSources([]);
     setAnswer("Connecting to your local model…");
     answerRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
@@ -160,6 +168,7 @@ export default function App() {
         const data = JSON.parse(line) as StreamEvent;
 
         if (data.type === "meta") setTemperature(data.temperature);
+        if (data.type === "sources") setSources(data.sources);
         if (data.type === "chunk") {
           hasReceivedText = true;
           streamedAnswer += data.text;
@@ -235,7 +244,7 @@ export default function App() {
                 <p className="model-name">Gemma 3 · 1B</p>
               </div>
               <p className="provider-note">
-                Questions are answered by your local Ollama model.
+                Gemma answers locally; current-information questions also use Tavily web search.
               </p>
             </div>
             <div className="question-area">
@@ -289,9 +298,24 @@ export default function App() {
           >
             {answer || "Your answer will appear here. Each response is tuned to the question you ask."}
           </div>
+          {sources.length > 0 && (
+            <div className="sources-box">
+              <h3>Web sources</h3>
+              <ol>
+                {sources.map((source, index) => (
+                  <li key={`${source.url}-${index}`}>
+                    <a href={source.url} target="_blank" rel="noreferrer">
+                      {source.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </section>
         <p className="footer-note">
-          Your questions are processed by the local model configured on this machine.
+          Current-information questions are sent to Tavily for search; answers are generated
+          locally by Gemma.
         </p>
       </div>
     </main>
